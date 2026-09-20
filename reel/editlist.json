@@ -19,7 +19,7 @@
       "in": 0.0,
       "out": 6.0,
       "label": null,
-      "note": "original title card, unchanged",
+      "note": "original title card, unchanged | no de-tag crop: it would shift the card",
       "vo": "Zephyr Kreye. Six foot five, two hundred twenty pounds. Quarterback, Anna High School, class of twenty twenty-seven.",
       "stamps": [
         {
@@ -33,8 +33,46 @@
             214,
             255
           ]
+        },
+        {
+          "text": "2026 SEASON  ·  THROUGH 4 GAMES",
+          "x": 705,
+          "y": 606,
+          "size": 28,
+          "font": "book",
+          "color": [
+            150,
+            150,
+            160,
+            255
+          ]
+        },
+        {
+          "text": "851 PASS YDS   ·   10 TD   ·   1 INT",
+          "x": 705,
+          "y": 650,
+          "size": 38,
+          "color": [
+            206,
+            206,
+            214,
+            255
+          ]
+        },
+        {
+          "text": "63 RUSH YDS   ·   4 TD",
+          "x": 705,
+          "y": 700,
+          "size": 38,
+          "color": [
+            206,
+            206,
+            214,
+            255
+          ]
         }
-      ]
+      ],
+      "detag": false
     },
     {
       "id": "p10",
@@ -127,8 +165,9 @@
       "in": 135.6,
       "out": 141.6,
       "label": null,
-      "note": "original contact card, unchanged",
-      "vo": "Zephyr Kreye. Number seventeen. Anna, Texas. Full film and contact below."
+      "note": "original contact card, unchanged | no de-tag crop: it would shift the card",
+      "vo": "Zephyr Kreye. Number seventeen. Anna, Texas. Full film and contact below.",
+      "detag": false
     }
   ],
   "voice": {

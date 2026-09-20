@@ -55,9 +55,14 @@ def frame_chain(clip, cw, ch):
         return (f"[0:v]crop=iw:ih-{TAG_STRIP}:0:0,scale=-2:{ch}:flags=lanczos,"
                 f"crop={cw}:{ch}:(iw-{cw})/2:0,setsar=1[base];")
     # clips pulled straight from Hudl are 720p and carry no corner tag
+    # An external Hudl pull arrives at 720p; lanczos plus a light unsharp
+    # recovers some of the edge detail the blow-up costs. Title cards come in
+    # at full size and must not be touched at all, or the burnt-in text shifts
+    # out from under the stamps drawn at fixed positions.
+    sharpen = ",unsharp=5:5:0.7:3:3:0.3" if clip.get("source") else ""
     return (f"[0:v]scale={cw}:{ch}:flags=lanczos:"
             f"force_original_aspect_ratio=increase,"
-            f"crop={cw}:{ch},setsar=1[base];")
+            f"crop={cw}:{ch}{sharpen},setsar=1[base];")
 FONTS = {
     "bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "book": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -301,6 +306,8 @@ def write_description(spec, path):
     lines = [
         "Zephyr Kreye | QB | Anna Coyotes (TX) | Class of 2027",
         """H/W: 6'5" | 220 lbs | Jersey #17""",
+        "2026 (through 4 games): 851 pass yds, 10 TD, 1 INT | "
+        "63 rush yds, 4 TD",
         "Testing: 20yd shuttle 4.66 | L-drill 7.63 | "
         "Broad jump 9'1 | Triple broad 28'4",
         "",
