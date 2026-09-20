@@ -41,6 +41,14 @@ def bleed_expr(strength=BLEED):
 # Instagram Reels covers roughly the top 120px and bottom 340px of a 1080x1920
 # frame with its own UI. Everything we draw stays between those.
 IG_SAFE_TOP, IG_SAFE_BOTTOM = 120, 340
+
+# The source reel burns its own "OPPONENT | PASS" tag into the bottom-left
+# corner, so every play arrived carrying two labels. Shave that strip and
+# reframe to fill - about 8% of a blow-up, which is invisible on a wide
+# football shot and cheaper than trying to paint the tag out.
+TAG_STRIP = 80
+DETAG = ("[0:v]crop=iw:ih-{strip}:0:0,scale=-2:{{ch}},"
+         "crop={{cw}}:{{ch}}:(iw-{{cw}})/2:0,setsar=1[base];").format(strip=TAG_STRIP)
 FONTS = {
     "bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "book": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -114,21 +122,20 @@ def make_label(clip, spec, path, layer="all"):
                   font=head, fill=(236, 236, 240, 255))
         draw.rectangle([(cw - hw) / 2, hy + 52, (cw + hw) / 2, hy + 56],
                        fill=accent)
-        font, pad_x, pad_y = ImageFont.truetype(FONTS["bold"], 46), 34, 22
-        x0, y0 = 48, band_top + band_h + 74
+        font = ImageFont.truetype(FONTS["bold"], 46)
+        x0, y0 = 54, band_top + band_h + 80
     else:
-        font, pad_x, pad_y = ImageFont.truetype(FONTS["bold"], 40), 30, 18
-        x0 = 40
+        font = ImageFont.truetype(FONTS["bold"], 42)
+        x0, y0 = 54, ch - 104
 
-    bw = int(draw.textlength(line, font=font)) + pad_x * 2
-    bh = font.size + pad_y * 2
-    if not vertical:
-        y0 = ch - 46 - bh
-
-    draw.rectangle([x0, y0, x0 + bw, y0 + bh], fill=panel)
+    # no filled panel - a thin accent rule and the text itself, so the label
+    # sits on the picture instead of boxing a hole in it
+    bh = font.size + 10
     draw.rectangle([x0, y0, x0 + 6, y0 + bh], fill=accent)
-    draw.text((x0 + pad_x, y0 + pad_y), line, font=font,
-              fill=(255, 255, 255, 255))
+    tx, ty = x0 + 24, y0 + 2
+    for dx, dy in ((2, 2), (1, 3), (3, 1)):
+        draw.text((tx + dx, ty + dy), line, font=font, fill=(0, 0, 0, 150))
+    draw.text((tx, ty), line, font=font, fill=(255, 255, 255, 255))
 
     if vertical:
         safe = canvas.get("safe_bottom", IG_SAFE_BOTTOM)
@@ -198,7 +205,7 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
                    f"fade=t=out:st={hold_out:.2f}:d=0.3:alpha=1[lbl];")
         else:
             lbl = "[2:v]format=rgba[lbl];"
-        base = fill if vertical else "[0:v]null[base];"
+        base = fill if vertical else DETAG.format(cw=cw, ch=chh)
         graph = (base + "[1:v]format=rgba[stat];" + lbl
                  + "[base][stat]overlay=0:0:shortest=1[withstat];"
                  + "[withstat][lbl]overlay=0:0:shortest=1[v]")
@@ -207,7 +214,8 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
         cmd += ["-filter_complex", fill + "[base]null[v]",
                 "-map", "[v]", "-map", "0:a"]
     else:
-        cmd += ["-map", "0:v", "-map", "0:a"]
+        cmd += ["-filter_complex", DETAG.format(cw=cw, ch=chh) + "[base]null[v]",
+                "-map", "[v]", "-map", "0:a"]
 
     cmd += ["-c:v", "libx264", "-crf", "16", "-preset", "medium",
             "-pix_fmt", "yuv420p", "-r", "30000/1001",
