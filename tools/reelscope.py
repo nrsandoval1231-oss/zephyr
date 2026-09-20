@@ -130,6 +130,10 @@ def main():
     p.add_argument("--crop", default=None,
                    help="ffmpeg crop as W:H:X:Y on the 1920x1080 source, applied "
                         "before scaling - use it to zoom in on the ball")
+    p.add_argument("--per-segment", type=int, metavar="N",
+                   help="triage mode: detect segments, then sample N frames "
+                        "evenly inside each one. Far cheaper than a flat scan "
+                        "when a file holds dozens of separate plays.")
     p.add_argument("--cuts", action="store_true",
                    help="print detected clip boundaries and exit")
     p.add_argument("--cut-threshold", type=float, default=0.3)
@@ -145,6 +149,43 @@ def main():
             if cut - prev >= 1.0:          # ignore the frames inside a fade
                 print(f"  segment {timecode(prev)} -> {timecode(cut)}  ({cut - prev:.2f}s)")
                 prev = cut
+        return
+
+    if args.per_segment:
+        total = duration(ffmpeg, args.video)
+        cuts, prev, segs = scene_cuts(ffmpeg, args.video, args.cut_threshold), 0.0, []
+        for cut in cuts + [total]:
+            if cut - prev >= 1.0:
+                segs.append((prev, cut))
+                prev = cut
+        os.makedirs(args.out, exist_ok=True)
+        font = load_font(max(14, args.tile_width // 22))
+        with tempfile.TemporaryDirectory() as workdir:
+            tiles = []
+            for n, (a, b) in enumerate(segs, start=1):
+                for k in range(args.per_segment):
+                    t = a + (b - a) * (k + 1) / (args.per_segment + 1)
+                    f = os.path.join(workdir, f"s{n:03d}_{k}.png")
+                    subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error",
+                                    "-y", "-ss", f"{t:.2f}", "-i", args.video,
+                                    "-frames:v", "1", "-vf",
+                                    f"scale={args.tile_width}:-2", f], check=True)
+                    tiles.append((f, f"seg {n:02d}  {timecode(t)}  ({b - a:.0f}s)"))
+            per = args.cols * args.rows
+            for sheet_no, off in enumerate(range(0, len(tiles), per), start=1):
+                chunk = tiles[off:off + per]
+                ims = [Image.open(f).convert("RGB") for f, _ in chunk]
+                tw, th = ims[0].size
+                sheet = Image.new("RGB", (args.cols * tw, args.rows * th), "black")
+                for i, (im, (_, cap)) in enumerate(zip(ims, chunk)):
+                    d = ImageDraw.Draw(im)
+                    box = d.textbbox((0, 0), cap, font=font)
+                    d.rectangle([0, 0, box[2] + 10, box[3] + 8], fill="black")
+                    d.text((5, 2), cap, fill="yellow", font=font)
+                    sheet.paste(im, ((i % args.cols) * tw, (i // args.cols) * th))
+                sheet.save(os.path.join(args.out, f"{args.prefix}_{sheet_no:03d}.png"))
+        print(f"{len(segs)} segments, {len(tiles)} frames -> "
+              f"{(len(tiles) + per - 1) // per} sheets in {args.out}")
         return
 
     with tempfile.TemporaryDirectory() as workdir:

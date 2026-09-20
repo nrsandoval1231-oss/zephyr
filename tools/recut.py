@@ -301,6 +301,8 @@ def write_description(spec, path):
     lines = [
         "Zephyr Kreye | QB | Anna Coyotes (TX) | Class of 2027",
         """H/W: 6'5" | 220 lbs | Jersey #17""",
+        "Testing: 20yd shuttle 4.66 | L-drill 7.63 | "
+        "Broad jump 9'1 | Triple broad 28'4",
         "",
         "Timestamps:",
     ]
