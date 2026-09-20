@@ -47,8 +47,17 @@ IG_SAFE_TOP, IG_SAFE_BOTTOM = 120, 340
 # reframe to fill - about 8% of a blow-up, which is invisible on a wide
 # football shot and cheaper than trying to paint the tag out.
 TAG_STRIP = 80
-DETAG = ("[0:v]crop=iw:ih-{strip}:0:0,scale=-2:{{ch}},"
-         "crop={{cw}}:{{ch}}:(iw-{{cw}})/2:0,setsar=1[base];").format(strip=TAG_STRIP)
+
+
+def frame_chain(clip, cw, ch):
+    """Fit a clip to the canvas, shaving the burnt-in tag when it has one."""
+    if clip.get("detag", True):
+        return (f"[0:v]crop=iw:ih-{TAG_STRIP}:0:0,scale=-2:{ch}:flags=lanczos,"
+                f"crop={cw}:{ch}:(iw-{cw})/2:0,setsar=1[base];")
+    # clips pulled straight from Hudl are 720p and carry no corner tag
+    return (f"[0:v]scale={cw}:{ch}:flags=lanczos:"
+            f"force_original_aspect_ratio=increase,"
+            f"crop={cw}:{ch},setsar=1[base];")
 FONTS = {
     "bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "book": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -83,7 +92,7 @@ def make_label(clip, spec, path, layer="all"):
 
     # one line, nothing else: who they played, plus down and distance where a
     # scoreboard in the footage actually gives it
-    line = clip.get("opponent", "")
+    line = clip.get("opponent") or ""
     if clip.get("down"):
         line = f"{line}   ·   {clip['down']}"
     line = line.upper()
@@ -172,6 +181,7 @@ def make_endcard(spec, path):
 
 
 def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
+    src = clip.get("source", src)
     dur = round(clip["out"] - clip["in"], 3)
     canvas = canvas or {}
     cw, chh = canvas.get("w", W), canvas.get("h", H)
@@ -184,8 +194,9 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
             f"crop={cw}:{chh},gblur=sigma=28,eq=brightness=-0.18[bgb];"
             # shave the strip carrying the source reel's own "OPPONENT | PASS"
             # tag; vertically our label sits below the band and can't cover it
-            f"[fg]crop=iw:ih-80:0:0,scale={cw}:-2[fgs];"
-            f"[bgb][fgs]overlay=(W-w)/2:(H-h)/2,setsar=1[base];")
+            f"[fg]{'crop=iw:ih-80:0:0,' if clip.get('detag', True) else ''}"
+            f"scale={cw}:-2:flags=lanczos[fgs];")
+    fill += f"[bgb][fgs]overlay=(W-w)/2:(H-h)/2,setsar=1[base];"
 
     cmd = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
            "-ss", str(clip["in"]), "-t", str(dur), "-i", src]
@@ -205,7 +216,7 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
                    f"fade=t=out:st={hold_out:.2f}:d=0.3:alpha=1[lbl];")
         else:
             lbl = "[2:v]format=rgba[lbl];"
-        base = fill if vertical else DETAG.format(cw=cw, ch=chh)
+        base = fill if vertical else frame_chain(clip, cw, chh)
         graph = (base + "[1:v]format=rgba[stat];" + lbl
                  + "[base][stat]overlay=0:0:shortest=1[withstat];"
                  + "[withstat][lbl]overlay=0:0:shortest=1[v]")
@@ -214,7 +225,7 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
         cmd += ["-filter_complex", fill + "[base]null[v]",
                 "-map", "[v]", "-map", "0:a"]
     else:
-        cmd += ["-filter_complex", DETAG.format(cw=cw, ch=chh) + "[base]null[v]",
+        cmd += ["-filter_complex", frame_chain(clip, cw, chh) + "[base]null[v]",
                 "-map", "[v]", "-map", "0:a"]
 
     cmd += ["-c:v", "libx264", "-crf", "16", "-preset", "medium",
@@ -295,9 +306,10 @@ def write_description(spec, path):
     ]
     d = float(spec.get("transition", {}).get("duration", 0.5))
     for clip, t in zip(spec["clips"], clip_starts(spec)):
-        if clip.get("opponent"):
+        if clip.get("headline"):
+            who = f" (vs {clip['opponent']})" if clip.get("opponent") else ""
             lines.append(f"{int(t // 60)}:{int(t % 60):02d} "
-                         f"{clip['headline']} (vs {clip['opponent']})")
+                         f"{clip['headline']}{who}")
     lines += [
         "",
         "Hudl profile: https://www.hudl.com/profile/20145851/Zephyr-Kreye",

@@ -47,6 +47,16 @@
       "down": "1st & 10"
     },
     {
+      "id": "c67",
+      "source": "footage/hudl/67-yard-touchdown-pass-vs-colleyville-heritage.mp4",
+      "in": 2.0,
+      "out": 14.6,
+      "detag": false,
+      "opponent": null,
+      "headline": "67-yard touchdown pass vs Colleyville Heritage",
+      "note": "720p pull from Hudl, upscaled; keeps Hudl's own '#17 ZEPHYR KREYE' card rather than stacking a second label"
+    },
+    {
       "id": "p04",
       "in": 42.0,
       "out": 47.5,
@@ -64,6 +74,16 @@
       "note": "confirmed by the Hudl card in-clip and the stadium ribbon board",
       "vo": "First and ten at the twenty-nine. Kreye works right and finds number one in the flat. He's got blockers. Pylon. Touchdown.",
       "down": "1st & 10"
+    },
+    {
+      "id": "b40",
+      "source": "footage/hudl/40-yard-touchdown-pass-vs-brock.mp4",
+      "in": 1.5,
+      "out": 12.5,
+      "detag": false,
+      "opponent": null,
+      "headline": "40-yard touchdown pass vs Brock",
+      "note": "720p pull from Hudl, upscaled; keeps Hudl's own '#17 ZEPHYR KREYE' card rather than stacking a second label"
     },
     {
       "id": "p01",
