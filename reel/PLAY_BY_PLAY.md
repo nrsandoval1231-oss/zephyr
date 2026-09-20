@@ -13,6 +13,34 @@ black/green, neutral site at Toyota Stadium.
 
 ---
 
+## There is now a recut
+
+`Kreye_Zephyr_QB_Anna_2027_CoachReel_v2.mp4` — **1:18.8**, 8 plays, best rep
+first, situation labels burned in. Built from `reel/editlist.json` by
+`tools/recut.py`, so the order and the labels are editable text, not a timeline
+locked in an app.
+
+What changed:
+
+- **1:18.8 instead of 2:21.6** for one more play's worth of actual football.
+  The pre-snap standing around is gone.
+- **Play order is by strength, not chronology.** Own-end-zone TD opens, the
+  off-platform throw is second, the 29-yard TD is third.
+- **Every clip carries down, distance, score and what to watch**, drawn from the
+  stadium scoreboard reads below.
+- **Three clips cut entirely** (old Plays 5, 6, 7) — I could not resolve their
+  outcome from the footage, which means a coach can't either.
+- The generated description file has chapter timestamps that match the new cut.
+
+One note: the source's own "#17 ZEPHYR KREYE · 29-YARD TOUCHDOWN PASS" card sat
+at 1:37.3, inside the pre-snap that got trimmed. The burned-in label carries the
+same information, so nothing is lost.
+
+Still open and not fixable from the tape: **height/weight**, a **stat line**, and
+a **full-game link**.
+
+---
+
 ## The tape at a glance
 
 | # | Reel time | Opponent | Hudl label | What it actually shows |

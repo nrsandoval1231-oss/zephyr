@@ -1,0 +1,83 @@
+{
+  "source": "reel/Kreye_Zephyr_QB_Anna_2027_CoachReel.mp4",
+  "output": "reel/Kreye_Zephyr_QB_Anna_2027_CoachReel_v2.mp4",
+  "brand": { "accent": "#653397", "panel": "#0B0B0BE0" },
+  "clips": [
+    {
+      "id": "intro",
+      "in": 0.0, "out": 6.0,
+      "label": null,
+      "note": "original title card, unchanged"
+    },
+    {
+      "id": "p10",
+      "in": 116.0, "out": 128.2,
+      "opponent": "EMERSON HS",
+      "situation": "Backed up on his own goal line",
+      "headline": "Throws from inside his own end zone — 90+ yard TD",
+      "note": "release at reel 1:57.9 with a rusher diving at him; receiver untouched to the house"
+    },
+    {
+      "id": "p04",
+      "in": 42.0, "out": 47.5,
+      "opponent": "EMERSON HS",
+      "situation": "Free rusher off the edge",
+      "headline": "Off-platform throw on the move — completion at the 50",
+      "note": "moves to his non-throwing side, keeps his eyes up, releases at 0:44.1"
+    },
+    {
+      "id": "p09",
+      "in": 98.8, "out": 109.5,
+      "opponent": "PANTHER CREEK",
+      "situation": "1st & 10 at the 29",
+      "headline": "29-yard touchdown pass",
+      "note": "confirmed by the Hudl card in-clip and the stadium ribbon board"
+    },
+    {
+      "id": "p01",
+      "in": 6.0, "out": 13.5,
+      "opponent": "EMERSON HS",
+      "situation": "Clean pocket, no early bail",
+      "headline": "Holds 3.5 seconds, throws on time — big gain to the 20",
+      "note": "still square and upright at 0:09.0 before the ball comes out"
+    },
+    {
+      "id": "p08",
+      "in": 81.0, "out": 89.5,
+      "opponent": "COLLEYVILLE HERITAGE",
+      "situation": "In rhythm, on schedule",
+      "headline": "Deep ball down the boundary — about 30 yards to #2",
+      "note": "tackled inside the 20"
+    },
+    {
+      "id": "p11",
+      "in": 129.5, "out": 135.0,
+      "opponent": "COLLEYVILLE HERITAGE",
+      "situation": "Red zone, tight man coverage",
+      "headline": "Ball placed where only #2 can play it — catch at the 3",
+      "note": "defender draped on him through the catch"
+    },
+    {
+      "id": "p03",
+      "in": 30.8, "out": 41.5,
+      "opponent": "EMERSON HS",
+      "situation": "Q2 10:38 · leads 14-0",
+      "headline": "Midfield to the 10",
+      "note": "ball spotted at the 10 after the play, read off the stadium scoreboard"
+    },
+    {
+      "id": "p02",
+      "in": 24.0, "out": 30.0,
+      "opponent": "EMERSON HS",
+      "situation": "3rd & 5 at the 34 · Q3 6:53",
+      "headline": "Pocket collapses — steps up, escapes, runs it",
+      "note": "will not take the sack; gain is right around the line to gain"
+    },
+    {
+      "id": "outro",
+      "in": 135.6, "out": 141.6,
+      "label": null,
+      "note": "original contact card, unchanged"
+    }
+  ]
+}
