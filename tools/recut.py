@@ -107,7 +107,7 @@ def write_description(spec, path):
     """Chapter timestamps that actually match the cut."""
     lines = [
         "Zephyr Kreye | QB | Anna Coyotes (TX) | Class of 2027",
-        "H/W: Not provided | Jersey #17",
+        """H/W: 6'5" | 220 lbs | Jersey #17""",
         "",
         "Timestamps:",
     ]

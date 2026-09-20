@@ -60,3 +60,49 @@ python3 tools/reelscope.py reel/Kreye_Zephyr_QB_Anna_2027_CoachReel.mp4 \
   down, distance, ball-on, quarter and score for free.
 
 Every tile is stamped with its source timecode, so notes cite an exact moment.
+
+---
+
+## recut.py
+
+Builds the reel from `reel/editlist.json` — cut points, play order, label copy
+and VO script all live in that one file.
+
+```bash
+python3 tools/recut.py --dry-run     # print the plan
+python3 tools/recut.py --description reel/..._v2_Description.txt
+```
+
+Labels are drawn with Pillow and composited via ffmpeg's `overlay`, because the
+ffmpeg builds bundled with imageio-ffmpeg have no `drawtext`.
+
+## voiceover.py
+
+Narrates the recut with ElevenLabs and ducks the crowd audio underneath.
+
+```bash
+python3 tools/voiceover.py --script          # copy + pacing, no API calls
+python3 tools/voiceover.py --offline-test    # placeholder tones, proves the mix
+export ELEVENLABS_API_KEY=sk_...
+export ELEVENLABS_VOICE_ID=...
+python3 tools/voiceover.py                   # -> ..._v2_VO.mp4
+```
+
+Design notes:
+
+- **One call per clip, not one long read.** Each line is anchored to its own
+  clip's start offset, so nothing drifts. A single 79-second read will creep out
+  of sync by the third play.
+- **Duck, don't mute.** `sidechaincompress` keys the source audio off the VO, so
+  the crowd only dips while he's talking and comes back up for the reaction.
+  Muting the field audio makes it feel sterile.
+- **Every branch of the filter graph is pinned** to 48 kHz stereo with `aformat`.
+  Skip that and `amix`/`sidechaincompress` silently hand back mono at the wrong
+  rate, and `loudnorm` re-rates to 192 kHz on its way out.
+- **Pacing is checked before you spend credits.** `--script` flags any line over
+  3.2 words/second, which is where a broadcast read starts sounding rushed.
+- Output goes to a separate `_VO.mp4`. The clean coach cut is never overwritten.
+
+`api.elevenlabs.io` is blocked by some sandboxed network policies (403 at
+CONNECT). If the synth step fails that way, run it somewhere with open outbound
+HTTPS — everything else in the pipeline works offline.
