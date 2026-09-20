@@ -5,6 +5,10 @@
     "accent": "#653397",
     "panel": "#0B0B0BE0"
   },
+  "transition": {
+    "style": "bleed",
+    "duration": 0.55
+  },
   "clips": [
     {
       "id": "intro",

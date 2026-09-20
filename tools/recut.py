@@ -22,7 +22,21 @@ import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
 W, H = 1920, 1080    # default canvas; an edit list can override via "canvas"
-FADE = 0.12          # seconds of dip in/out on every cut
+FADE = 0.12          # dip up from black at the top and out at the tail
+
+# A purple bleed instead of a cut to black: cross-dissolve A into B while
+# blooming the brand colour on a bell curve that peaks mid-transition, so it
+# never lands on a flat block of purple. Commas would be eaten by the
+# filtergraph parser, so the per-plane target is a quadratic through the three
+# YUV values of #653397 - (0,75) (1,167) (2,146) - instead of nested if().
+PURPLE_YUV_BY_PLANE = "(-56.5*PLANE*PLANE+148.5*PLANE+75)"
+BLEED = 0.38         # peak strength of the colour bloom, 0-1
+
+
+def bleed_expr(strength=BLEED):
+    bell = f"({strength}*4*P*(1-P))"
+    mix = "(A*P+B*(1-P))"
+    return f"{mix}*(1-{bell})+{PURPLE_YUV_BY_PLANE}*{bell}"
 
 # Instagram Reels covers roughly the top 120px and bottom 340px of a 1080x1920
 # frame with its own UI. Everything we draw stays between those.
@@ -51,8 +65,8 @@ def hex_rgba(value):
     return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4, 6))
 
 
-def make_label(clip, spec, path):
-    """A transparent plate carrying the lower third (and, vertically, a header)."""
+def make_label(clip, spec, path, layer="all"):
+    """A transparent plate: layer "static" never fades, "anim" fades for cuts."""
     brand = spec["brand"]
     canvas = spec.get("canvas", {})
     cw, ch = canvas.get("w", W), canvas.get("h", H)
@@ -69,11 +83,27 @@ def make_label(clip, spec, path):
     plate = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
     draw = ImageDraw.Draw(plate)
 
-    for st in clip.get("stamps", []):
+    if layer == "anim":
+        plate = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(plate)
+    elif not vertical:
+        # soft scrim along the foot of the frame: it reads as broadcast
+        # treatment and permanently suppresses the source reel's own
+        # "OPPONENT | PASS" tag, which would otherwise surface every time the
+        # play label fades out for a transition
+        band = 150
+        for i in range(band):
+            y = ch - band + i
+            t = i / band
+            # ramp to fully opaque by the point the source tag sits, then hold
+            a = 238 if t >= 0.62 else int(238 * (t / 0.62) ** 1.9)
+            draw.rectangle([0, y, cw, y + 1], fill=(6, 6, 8, a))
+
+    for st in (clip.get("stamps", []) if layer != "anim" else []):
         draw.text((st["x"], st["y"]), st["text"],
                   font=ImageFont.truetype(FONTS[st.get("font", "bold")], st["size"]),
                   fill=tuple(st["color"]))
-    if not clip.get("headline"):
+    if layer == "static" or not clip.get("headline"):
         plate.save(path)
         return
 
@@ -157,11 +187,8 @@ def make_endcard(spec, path):
     card.save(path)
 
 
-def cut(ffmpeg, src, clip, label_path, out_path, canvas=None):
+def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
     dur = round(clip["out"] - clip["in"], 3)
-    fade_out = max(dur - FADE, 0)
-    chain = (f"fade=t=in:st=0:d={FADE},"
-             f"fade=t=out:st={fade_out}:d={FADE}")
     canvas = canvas or {}
     cw, chh = canvas.get("w", W), canvas.get("h", H)
     vertical = canvas.get("mode") == "vertical"
@@ -178,17 +205,34 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None):
 
     cmd = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
            "-ss", str(clip["in"]), "-t", str(dur), "-i", src]
+
     if label_path:
-        cmd += ["-i", label_path]
-        graph = (fill + f"[base][1:v]overlay=0:0,{chain}[v]") if vertical \
-            else f"[0:v][1:v]overlay=0:0,{chain}[v]"
+        static_path, label_path = label_path
+        cmd += ["-loop", "1", "-framerate", "30000/1001", "-t", str(dur),
+                "-i", static_path]
+        cmd += ["-loop", "1", "-framerate", "30000/1001", "-t", str(dur),
+                "-i", label_path]
+        if clip.get("headline") and trans:
+            # hold the label clear of both crossfades, or two of them ghost
+            # through each other while the clips are dissolving
+            hold_in, hold_out = trans, max(dur - trans - 0.3, trans + 0.1)
+            lbl = (f"[2:v]format=rgba,"
+                   f"fade=t=in:st={hold_in:.2f}:d=0.3:alpha=1,"
+                   f"fade=t=out:st={hold_out:.2f}:d=0.3:alpha=1[lbl];")
+        else:
+            lbl = "[2:v]format=rgba[lbl];"
+        base = fill if vertical else "[0:v]null[base];"
+        graph = (base + "[1:v]format=rgba[stat];" + lbl
+                 + "[base][stat]overlay=0:0:shortest=1[withstat];"
+                 + "[withstat][lbl]overlay=0:0:shortest=1[v]")
         cmd += ["-filter_complex", graph, "-map", "[v]", "-map", "0:a"]
     elif vertical:
-        cmd += ["-filter_complex", fill + f"[base]{chain}[v]",
+        cmd += ["-filter_complex", fill + "[base]null[v]",
                 "-map", "[v]", "-map", "0:a"]
     else:
-        cmd += ["-vf", chain, "-map", "0:v", "-map", "0:a"]
-    cmd += ["-c:v", "libx264", "-crf", "21", "-preset", "medium",
+        cmd += ["-map", "0:v", "-map", "0:a"]
+
+    cmd += ["-c:v", "libx264", "-crf", "16", "-preset", "medium",
             "-pix_fmt", "yuv420p", "-r", "30000/1001",
             "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2",
             "-video_track_timescale", "30000",
@@ -202,11 +246,58 @@ def cut_still(ffmpeg, image, seconds, out_path):
                     "-loop", "1", "-t", str(seconds), "-i", image,
                     "-f", "lavfi", "-t", str(seconds),
                     "-i", "anullsrc=channel_layout=stereo:sample_rate=48000",
-                    "-vf", f"fade=t=in:st=0:d={FADE}",
-                    "-c:v", "libx264", "-crf", "21", "-preset", "medium",
+                    "-vf", "null",
+                    "-c:v", "libx264", "-crf", "16", "-preset", "medium",
                     "-pix_fmt", "yuv420p", "-r", "30000/1001",
                     "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2",
                     "-video_track_timescale", "30000", out_path], check=True)
+
+
+def clip_starts(spec):
+    """Where each clip lands once the crossfade overlap is taken out."""
+    d = float(spec.get("transition", {}).get("duration", 0.5))
+    t, out = 0.0, []
+    for i, c in enumerate(spec["clips"]):
+        out.append(t)
+        t += (c["out"] - c["in"]) - (d if i < len(spec["clips"]) - 1 else 0)
+    return out
+
+
+def assemble(ffmpeg, parts, lengths, spec, out):
+    """Chain the clips together with the purple-bleed crossfade."""
+    tr = spec.get("transition", {})
+    d = float(tr.get("duration", 0.5))
+    style = tr.get("style", "bleed")
+
+    cmd = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y"]
+    for part in parts:
+        cmd += ["-i", part]
+
+    xf = (f"xfade=transition=custom:expr='{bleed_expr()}'" if style == "bleed"
+          else f"xfade=transition={style}")
+
+    vg, ag = [], []
+    vlab, alab, running = "[0:v]", "[0:a]", lengths[0]
+    for i in range(1, len(parts)):
+        vout, aout = f"[v{i}]", f"[a{i}]"
+        vg.append(f"{vlab}[{i}:v]{xf}:duration={d}:offset={running - d:.3f}{vout}")
+        ag.append(f"{alab}[{i}:a]acrossfade=d={d}:c1=tri:c2=tri{aout}")
+        vlab, alab = vout, aout
+        running += lengths[i] - d
+
+    # lift up from black at the top, settle out at the tail
+    vg.append(f"{vlab}fade=t=in:st=0:d=0.45,"
+              f"fade=t=out:st={running - 0.6:.3f}:d=0.6[vout]")
+    ag.append(f"{alab}afade=t=out:st={running - 0.6:.3f}:d=0.6[aout]")
+
+    cmd += ["-filter_complex", ";".join(vg + ag),
+            "-map", "[vout]", "-map", "[aout]",
+            "-c:v", "libx264", "-crf", "21", "-preset", "medium",
+            "-pix_fmt", "yuv420p", "-r", "30000/1001",
+            "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2",
+            "-movflags", "+faststart", out]
+    subprocess.run(cmd, check=True)
+    return running
 
 
 def write_description(spec, path):
@@ -217,12 +308,11 @@ def write_description(spec, path):
         "",
         "Timestamps:",
     ]
-    t = 0.0
-    for clip in spec["clips"]:
+    d = float(spec.get("transition", {}).get("duration", 0.5))
+    for clip, t in zip(spec["clips"], clip_starts(spec)):
         if clip.get("opponent"):
             lines.append(f"{int(t // 60)}:{int(t % 60):02d} "
                          f"{clip['headline']} (vs {clip['opponent']})")
-        t += clip["out"] - clip["in"]
     lines += [
         "",
         "Hudl profile: https://www.hudl.com/profile/20145851/Zephyr-Kreye",
@@ -274,15 +364,18 @@ def main():
 
     ffmpeg = find_ffmpeg()
     with tempfile.TemporaryDirectory() as work:
-        parts = []
+        parts, lengths = [], []
         for i, clip in enumerate(clips):
-            label = None
-            if clip.get("opponent") or clip.get("stamps"):
-                label = os.path.join(work, f"label_{i:02d}.png")
-                make_label(clip, spec, label)
+            stat = os.path.join(work, f"static_{i:02d}.png")
+            anim = os.path.join(work, f"label_{i:02d}.png")
+            make_label(clip, spec, stat, layer="static")
+            make_label(clip, spec, anim, layer="anim")
+            label = (stat, anim)
             part = os.path.join(work, f"part_{i:02d}.mp4")
-            cut(ffmpeg, src, clip, label, part, spec.get("canvas"))
+            cut(ffmpeg, src, clip, label, part, spec.get("canvas"),
+                float(spec.get("transition", {}).get("duration", 0.5)))
             parts.append(part)
+            lengths.append(round(clip["out"] - clip["in"], 3))
             print(f"  cut {clip['id']}")
 
         if spec.get("endcard"):
@@ -291,17 +384,12 @@ def main():
             part = os.path.join(work, "part_zz.mp4")
             cut_still(ffmpeg, card, spec["endcard"]["seconds"], part)
             parts.append(part)
+            lengths.append(float(spec["endcard"]["seconds"]))
             print("  cut endcard")
 
-        manifest = os.path.join(work, "parts.txt")
-        with open(manifest, "w") as fh:
-            for part in parts:
-                fh.write(f"file '{part}'\n")
-
         os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
-        subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
-                        "-f", "concat", "-safe", "0", "-i", manifest,
-                        "-c", "copy", "-movflags", "+faststart", out], check=True)
+        final = assemble(ffmpeg, parts, lengths, spec, out)
+        print(f"  assembled {len(parts)} clips -> {final:.1f}s")
 
     size = os.path.getsize(out) / 1e6
     print(f"wrote {out} ({size:.1f} MB)")

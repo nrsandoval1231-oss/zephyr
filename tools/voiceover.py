@@ -41,26 +41,78 @@ def find_ffmpeg():
     return imageio_ffmpeg.get_ffmpeg_exe()
 
 
-def starts(clips):
-    """Absolute start offset of every clip inside the recut."""
+def starts(spec):
+    """Absolute start offset of every clip, allowing for crossfade overlap."""
+    d = float(spec.get("transition", {}).get("duration", 0.0))
+    clips = spec["clips"]
     t, out = 0.0, {}
-    for c in clips:
+    for i, c in enumerate(clips):
         out[c["id"]] = t
-        t += c["out"] - c["in"]
+        t += (c["out"] - c["in"]) - (d if i < len(clips) - 1 else 0)
     return out, t
 
 
+def vo_offset(offsets, spec, clip_id):
+    """Start the line just past the incoming dissolve, not under it."""
+    d = float(spec.get("transition", {}).get("duration", 0.0))
+    return offsets[clip_id] + (d * 0.6 if offsets[clip_id] > 0 else 0.0)
+
+
 def show_script(spec):
-    offsets, total = starts(spec["clips"])
+    offsets, total = starts(spec)
     print(f"{'clip':6} {'at':>6} {'secs':>5} {'words':>5} {'w/s':>5}  copy")
     for c in spec["clips"]:
         d = c["out"] - c["in"]
         w = len(c["vo"].split())
         rate = w / d
         flag = "" if rate <= WPS_LIMIT else "  <-- TIGHT"
-        print(f"{c['id']:6} {offsets[c['id']]:6.1f} {d:5.1f} {w:5d} {rate:5.2f}  "
+        print(f"{c['id']:6} {vo_offset(offsets, spec, c['id']):6.1f} {d:5.1f} {w:5d} {rate:5.2f}  "
               f"{c['vo'][:58]}{flag}")
     print(f"\ntotal {total:.1f}s")
+
+
+def write_md(spec, path):
+    offsets, total = starts(spec)
+    v = spec["voice"]
+    L = ["# Voiceover script — Zephyr Kreye coach reel", "",
+         f"Timed to `{os.path.basename(spec['output'])}` ({total:.1f}s).",
+         "Each line is recorded **separately** and dropped at its own timecode —",
+         "do not record this as one continuous read, it will drift out of sync.", "",
+         "## Voice settings", "",
+         f"- Model: `{v['model_id']}`",
+         f"- Stability **{v['voice_settings']['stability']}** — deliberately low; "
+         "high stability gives a flat corporate read, wrong for sports",
+         f"- Similarity **{v['voice_settings']['similarity_boost']}**, "
+         f"Style **{v['voice_settings']['style']}**",
+         "- Delivery: broadcast play-by-play. Lean on the bolded moments.", "",
+         "## Lines", "",
+         "| # | Drop at | Budget | Line |",
+         "|---|---------|--------|------|"]
+    n = 0
+    for c in spec["clips"]:
+        if not c.get("vo"):
+            continue
+        n += 1
+        at = vo_offset(offsets, spec, c["id"])
+        dur = c["out"] - c["in"]
+        L.append(f"| {n} | {int(at // 60)}:{at % 60:04.1f} | {dur:.1f}s | {c['vo']} |")
+    L += ["", "## Copy-paste blocks", "",
+          "One block per clip. Render each, name the file after the clip id, and",
+          "`tools/voiceover.py` will place them automatically.", ""]
+    for c in spec["clips"]:
+        if c.get("vo"):
+            L += [f"**{c['id']}** — {int(vo_offset(offsets, spec, c['id']) // 60)}:"
+                  f"{vo_offset(offsets, spec, c['id']) % 60:04.1f}", "",
+                  "```", c["vo"], "```", ""]
+    L += ["## Generating it", "",
+          "Never put the API key in a file in this repository — it is public.",
+          "Set it in the environment instead:", "",
+          "```powershell",
+          "$env:ELEVENLABS_API_KEY = \"sk_...\"",
+          "$env:ELEVENLABS_VOICE_ID = \"...\"",
+          "python tools\\voiceover.py",
+          "```", ""]
+    open(path, "w").write("\n".join(L) + "\n")
 
 
 def synth(voice, text, path):
@@ -137,11 +189,16 @@ def main():
     p.add_argument("--editlist", default="reel/editlist.json")
     p.add_argument("--out", default=None)
     p.add_argument("--script", action="store_true", help="print copy and pacing only")
+    p.add_argument("--md", metavar="PATH", help="write the script as markdown and stop")
     p.add_argument("--offline-test", action="store_true",
                    help="synthesize placeholder tones instead of calling the API")
     args = p.parse_args()
 
     spec = json.load(open(args.editlist))
+    if args.md:
+        write_md(spec, args.md)
+        print(f"wrote {args.md}")
+        return
     if args.script:
         show_script(spec)
         return
@@ -152,7 +209,7 @@ def main():
     out = args.out or video.replace(".mp4", "_VO.mp4")
 
     ffmpeg = find_ffmpeg()
-    offsets, total = starts(spec["clips"])
+    offsets, total = starts(spec)
     voice = dict(spec["voice"], _total=round(total, 3))
 
     with tempfile.TemporaryDirectory() as work:
@@ -167,7 +224,7 @@ def main():
             else:
                 synth(voice, c["vo"], path)
                 print(f"  voiced {c['id']}")
-            tracks.append((int(offsets[c["id"]] * 1000), path))
+            tracks.append((int(vo_offset(offsets, spec, c["id"]) * 1000), path))
         mix(ffmpeg, video, tracks, voice, out)
 
     size = os.path.getsize(out) / 1e6

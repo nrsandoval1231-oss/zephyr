@@ -1,35 +1,59 @@
 {
   "source": "reel/Kreye_Zephyr_QB_Anna_2027_CoachReel.mp4",
   "output": "reel/Kreye_Zephyr_QB_Anna_2027_IG_30s.mp4",
-  "brand": { "accent": "#653397", "panel": "#0B0B0BE6" },
-  "canvas": { "w": 1080, "h": 1920, "mode": "vertical" },
+  "brand": {
+    "accent": "#653397",
+    "panel": "#0B0B0BE6"
+  },
+  "transition": {
+    "style": "bleed",
+    "duration": 0.45
+  },
+  "canvas": {
+    "w": 1080,
+    "h": 1920,
+    "mode": "vertical"
+  },
   "header": "ZEPHYR KREYE   ·   QB   ·   ANNA HS   ·   '27",
   "endcard": {
     "seconds": 2.4,
-    "lines": ["ZEPHYR KREYE", "QB  ·  #17  ·  6'5\"  220", "ANNA HIGH SCHOOL  ·  CLASS OF 2027",
-              "", "hudl.com/profile/20145851/Zephyr-Kreye"]
+    "lines": [
+      "ZEPHYR KREYE",
+      "QB  ·  #17  ·  6'5\"  220",
+      "ANNA HIGH SCHOOL  ·  CLASS OF 2027",
+      "",
+      "hudl.com/profile/20145851/Zephyr-Kreye"
+    ]
   },
   "clips": [
     {
-      "id": "p04", "in": 42.3, "out": 47.4,
+      "id": "p04",
+      "in": 42.3,
+      "out": 47.4,
       "opponent": "vs EMERSON",
       "headline": "Free rusher. Throws it anyway.",
       "note": "fast hook - opens basically on the snap, payoff inside 2 seconds"
     },
     {
-      "id": "p10", "in": 117.2, "out": 127.9,
+      "id": "p10",
+      "in": 117.2,
+      "out": 127.9,
       "opponent": "vs EMERSON",
       "headline": "From his own end zone. 90 yards.",
       "note": "the money play"
     },
     {
-      "id": "p09", "in": 100.8, "out": 109.0,
+      "id": "p09",
+      "in": 100.8,
+      "out": 109.0,
       "opponent": "vs PANTHER CREEK",
       "headline": "29-yard touchdown",
       "note": "Toyota Stadium"
     },
     {
-      "id": "p11", "in": 129.8, "out": 134.2,
+      "id": "p11",
+      "in": 129.8,
+      "out": 134.2,
       "opponent": "vs COLLEYVILLE HERITAGE",
       "headline": "Red zone. Only his guy can get it.",
       "note": "ends on the contested catch"
