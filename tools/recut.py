@@ -71,45 +71,40 @@ def make_label(clip, spec, path, layer="all"):
     canvas = spec.get("canvas", {})
     cw, ch = canvas.get("w", W), canvas.get("h", H)
     vertical = canvas.get("mode") == "vertical"
+    accent, panel = hex_rgba(brand["accent"]), hex_rgba(brand["panel"])
 
-    accent = hex_rgba(brand["accent"])
-    panel = hex_rgba(brand["panel"])
-
-    situation = clip.get("situation") or clip.get("opponent", "")
-    top_line = (f"{clip['opponent']}   ·   {clip['situation']}".upper()
-                if clip.get("situation") else situation.upper())
-    headline = clip.get("headline", "")
+    # one line, nothing else: who they played, plus down and distance where a
+    # scoreboard in the footage actually gives it
+    line = clip.get("opponent", "")
+    if clip.get("down"):
+        line = f"{line}   ·   {clip['down']}"
+    line = line.upper()
 
     plate = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
     draw = ImageDraw.Draw(plate)
 
-    if layer == "anim":
-        plate = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(plate)
-    elif not vertical:
-        # soft scrim along the foot of the frame: it reads as broadcast
-        # treatment and permanently suppresses the source reel's own
-        # "OPPONENT | PASS" tag, which would otherwise surface every time the
-        # play label fades out for a transition
-        band = 150
+    if layer != "anim" and not vertical:
+        # a light gradient at the foot of the frame - enough to seat the label
+        # and knock back the source reel's own tag without dimming the sideline
+        sc = brand.get("scrim", {})
+        band, peak = int(sc.get("height", 190)), int(sc.get("alpha", 105))
         for i in range(band):
             y = ch - band + i
-            t = i / band
-            # ramp to fully opaque by the point the source tag sits, then hold
-            a = 238 if t >= 0.62 else int(238 * (t / 0.62) ** 1.9)
-            draw.rectangle([0, y, cw, y + 1], fill=(6, 6, 8, a))
+            draw.rectangle([0, y, cw, y + 1],
+                           fill=(6, 6, 8, int(peak * (i / band) ** 1.5)))
 
-    for st in (clip.get("stamps", []) if layer != "anim" else []):
-        draw.text((st["x"], st["y"]), st["text"],
-                  font=ImageFont.truetype(FONTS[st.get("font", "bold")], st["size"]),
-                  fill=tuple(st["color"]))
-    if layer == "static" or not clip.get("headline"):
+    if layer != "anim":
+        for st in clip.get("stamps", []):
+            draw.text((st["x"], st["y"]), st["text"],
+                      font=ImageFont.truetype(FONTS[st.get("font", "bold")],
+                                              st["size"]),
+                      fill=tuple(st["color"]))
+
+    if layer == "static" or not clip.get("opponent"):
         plate.save(path)
         return
 
     if vertical:
-        # the 16:9 footage sits as a band in the middle of the tall frame; put
-        # the name above it and the play label below, both inside the safe area
         band_h = int(cw * 9 / 16)
         band_top = (ch - band_h) // 2
         head = ImageFont.truetype(FONTS["bold"], 34)
@@ -117,47 +112,29 @@ def make_label(clip, spec, path, layer="all"):
         hy = band_top - 110
         draw.text(((cw - hw) / 2, hy), spec["header"],
                   font=head, fill=(236, 236, 240, 255))
-        draw.rectangle([(cw - hw) / 2, hy + 52, (cw + hw) / 2, hy + 56], fill=accent)
+        draw.rectangle([(cw - hw) / 2, hy + 52, (cw + hw) / 2, hy + 56],
+                       fill=accent)
+        font, pad_x, pad_y = ImageFont.truetype(FONTS["bold"], 46), 34, 22
+        x0, y0 = 48, band_top + band_h + 74
+    else:
+        font, pad_x, pad_y = ImageFont.truetype(FONTS["bold"], 40), 30, 18
+        x0 = 40
 
-        small = ImageFont.truetype(FONTS["book"], 30)
-        big = ImageFont.truetype(FONTS["bold"], 52)
-        pad_x, pad_y, gap = 36, 26, 14
-        bw = cw - 96
-        bh = 30 + gap + 52 + pad_y * 2
-        x0 = 48
-        y0 = band_top + band_h + 70
-        draw.rectangle([x0, y0, x0 + bw, y0 + bh], fill=panel)
-        draw.rectangle([x0, y0, x0 + 7, y0 + bh], fill=accent)
-        draw.text((x0 + pad_x, y0 + pad_y), top_line,
-                  font=small, fill=(196, 196, 204, 255))
-        draw.text((x0 + pad_x, y0 + pad_y + 30 + gap), headline,
-                  font=big, fill=(255, 255, 255, 255))
+    bw = int(draw.textlength(line, font=font)) + pad_x * 2
+    bh = font.size + pad_y * 2
+    if not vertical:
+        y0 = ch - 46 - bh
+
+    draw.rectangle([x0, y0, x0 + bw, y0 + bh], fill=panel)
+    draw.rectangle([x0, y0, x0 + 6, y0 + bh], fill=accent)
+    draw.text((x0 + pad_x, y0 + pad_y), line, font=font,
+              fill=(255, 255, 255, 255))
+
+    if vertical:
         safe = canvas.get("safe_bottom", IG_SAFE_BOTTOM)
         assert y0 + bh < ch - safe, (
             f"label bottom {y0 + bh} runs into the reserved {safe}px at the "
             f"foot of a {cw}x{ch} frame")
-        plate.save(path)
-        return
-
-    small = ImageFont.truetype(FONTS["book"], 26)
-    big = ImageFont.truetype(FONTS["bold"], 42)
-    pad_x, pad_y, gap = 34, 22, 12
-    tw = max(draw.textlength(top_line, font=small),
-             draw.textlength(headline, font=big))
-    bw = max(int(tw) + pad_x * 2 + 10, 560)
-    bh = 26 + gap + 42 + pad_y * 2
-
-    # sit the panel low and far enough left that it covers the source reel's
-    # own "OPPONENT | PASS" tag rather than stacking on top of it
-    x0, y0 = 24, ch - 26 - bh
-    draw.rectangle([x0, y0, x0 + bw, y0 + bh], fill=panel)
-    draw.rectangle([x0, y0, x0 + 6, y0 + bh], fill=accent)
-
-    draw.text((x0 + pad_x, y0 + pad_y), top_line,
-              font=small, fill=(196, 196, 204, 255))
-    draw.text((x0 + pad_x, y0 + pad_y + 26 + gap), headline,
-              font=big, fill=(255, 255, 255, 255))
-
     plate.save(path)
 
 
@@ -212,7 +189,7 @@ def cut(ffmpeg, src, clip, label_path, out_path, canvas=None, trans=0.0):
                 "-i", static_path]
         cmd += ["-loop", "1", "-framerate", "30000/1001", "-t", str(dur),
                 "-i", label_path]
-        if clip.get("headline") and trans:
+        if clip.get("opponent") and trans:
             # hold the label clear of both crossfades, or two of them ghost
             # through each other while the clips are dissolving
             hold_in, hold_out = trans, max(dur - trans - 0.3, trans + 0.1)

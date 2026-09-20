@@ -3,7 +3,11 @@
   "output": "reel/Kreye_Zephyr_QB_Anna_2027_IG_30s.mp4",
   "brand": {
     "accent": "#653397",
-    "panel": "#0B0B0BE6"
+    "panel": "#0B0B0BE6",
+    "scrim": {
+      "height": 190,
+      "alpha": 105
+    }
   },
   "transition": {
     "style": "bleed",
@@ -30,7 +34,7 @@
       "id": "p04",
       "in": 42.3,
       "out": 47.4,
-      "opponent": "vs EMERSON",
+      "opponent": "EMERSON",
       "headline": "Free rusher. Throws it anyway.",
       "note": "fast hook - opens basically on the snap, payoff inside 2 seconds"
     },
@@ -38,23 +42,25 @@
       "id": "p10",
       "in": 117.2,
       "out": 127.9,
-      "opponent": "vs EMERSON",
+      "opponent": "EMERSON",
       "headline": "From his own end zone. 90 yards.",
-      "note": "the money play"
+      "note": "the money play",
+      "down": "1st & 10"
     },
     {
       "id": "p09",
       "in": 100.8,
       "out": 109.0,
-      "opponent": "vs PANTHER CREEK",
+      "opponent": "PANTHER CREEK",
       "headline": "29-yard touchdown",
-      "note": "Toyota Stadium"
+      "note": "Toyota Stadium",
+      "down": "1st & 10"
     },
     {
       "id": "p11",
       "in": 129.8,
       "out": 134.2,
-      "opponent": "vs COLLEYVILLE HERITAGE",
+      "opponent": "COLLEYVILLE HERITAGE",
       "headline": "Red zone. Only his guy can get it.",
       "note": "ends on the contested catch"
     }
