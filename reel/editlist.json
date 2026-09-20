@@ -12,16 +12,30 @@
       "out": 6.0,
       "label": null,
       "note": "original title card, unchanged",
-      "vo": "Zephyr Kreye. Six foot five, two hundred twenty pounds. Quarterback, Anna High School, class of twenty twenty-seven."
+      "vo": "Zephyr Kreye. Six foot five, two hundred twenty pounds. Quarterback, Anna High School, class of twenty twenty-seven.",
+      "stamps": [
+        {
+          "text": "6'5\"   ·   220 LBS",
+          "x": 800,
+          "y": 508,
+          "size": 40,
+          "color": [
+            206,
+            206,
+            214,
+            255
+          ]
+        }
+      ]
     },
     {
       "id": "p10",
       "in": 116.0,
       "out": 128.2,
       "opponent": "EMERSON HS",
-      "situation": "Backed up on his own goal line",
-      "headline": "Throws from inside his own end zone — 90+ yard TD",
-      "note": "release at reel 1:57.9 with a rusher diving at him; receiver untouched to the house",
+      "situation": "1st & 10 from his own 10 · Q2 10:38 · leads 14-0",
+      "headline": "Throws from inside his own end zone — 90-yard TD",
+      "note": "same snap the source reel also showed from a wider angle at 0:30; that angle's scoreboard is what pins the situation",
       "vo": "Anna backed up on their own goal line. Kreye takes it in his own end zone, pressure in his face, and lets it go. Nobody catches him. Ninety yards. Touchdown, Coyotes."
     },
     {
@@ -73,16 +87,6 @@
       "headline": "Ball placed where only #2 can play it — catch at the 3",
       "note": "defender draped on him through the catch",
       "vo": "Red zone, tight man coverage. He puts it where only his guy can get it."
-    },
-    {
-      "id": "p03",
-      "in": 30.8,
-      "out": 41.5,
-      "opponent": "EMERSON HS",
-      "situation": "Q2 10:38 · leads 14-0",
-      "headline": "Midfield to the 10",
-      "note": "ball spotted at the 10 after the play, read off the stadium scoreboard",
-      "vo": "Second quarter, Coyotes up fourteen. Kreye from midfield, caught in stride, and Anna's got it all the way down to the ten."
     },
     {
       "id": "p02",

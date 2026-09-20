@@ -18,21 +18,23 @@ black/green, neutral site at Toyota Stadium.
 
 ## There is now a recut
 
-`Kreye_Zephyr_QB_Anna_2027_CoachReel_v2.mp4` — **1:18.8**, 8 plays, best rep
+`Kreye_Zephyr_QB_Anna_2027_CoachReel_v2.mp4` — **1:07.9**, 7 plays, best rep
 first, situation labels burned in. Built from `reel/editlist.json` by
 `tools/recut.py`, so the order and the labels are editable text, not a timeline
 locked in an app.
 
 What changed:
 
-- **1:18.8 instead of 2:21.6** for one more play's worth of actual football.
-  The pre-snap standing around is gone.
+- **1:07.9 instead of 2:21.6**, with more actual football in it. The pre-snap
+  standing around is gone.
 - **Play order is by strength, not chronology.** Own-end-zone TD opens, the
   off-platform throw is second, the 29-yard TD is third.
 - **Every clip carries down, distance, score and what to watch**, drawn from the
   stadium scoreboard reads below.
-- **Three clips cut entirely** (old Plays 5, 6, 7) — I could not resolve their
-  outcome from the footage, which means a coach can't either.
+- **Four clips cut.** Old Plays 5, 6 and 7 go because I could not resolve their
+  outcome from the footage, which means a coach can't either. Old Play 3 goes
+  because it is the same snap as Play 10 shown a second time.
+- **The title card now carries 6'5" / 220.**
 - The generated description file has chapter timestamps that match the new cut.
 
 One note: the source's own "#17 ZEPHYR KREYE · 29-YARD TOUCHDOWN PASS" card sat
@@ -50,15 +52,15 @@ a **full-game link**.
 |---|----------|----------|----------|-----------|------------------------|
 | — | 0:00–0:06 | kept, at 0:00 | — | title card | Name, position, school, class, #17 |
 | 1 | 0:06–0:13.6 | 0:34.4–0:41.9 | Emerson | PASS | 3.5-second hold, throw to #16, big gain to ~the 20 |
-| 2 | 0:13.6–0:30.4 | 1:06.6–1:12.6 | Emerson | PASS | 3rd & 5, pocket caves, escapes up the middle and runs |
-| 3 | 0:30.4–0:41.8 | 0:55.9–1:06.6 | Emerson | PASS | Long completion; ball spotted at the 10 after |
+| 2 | 0:13.6–0:30.4 | 0:55.9–1:01.9 | Emerson | PASS | 3rd & 5, pocket caves, escapes up the middle and runs |
+| 3 | 0:30.4–0:41.8 | **cut — duplicate** | Emerson | PASS | **Same snap as Play 10, wider angle.** See the correction below |
 | 4 | 0:41.8–0:47.7 | 0:18.2–0:23.7 | Emerson | PASS | Free rusher, moves left, throws on the run to #16 |
 | 5 | 0:47.7–0:59.7 | **cut** | Emerson | PASS | 1st & 10, quick game over the middle, contested |
 | 6 | 0:59.7–1:07.9 | **cut** | Emerson | PASS | Holds, slides, works the left side |
 | 7 | 1:07.9–1:20.9 | **cut** | Emerson | PASS | 2nd & 10 from the 45, crosser with pressure arriving |
 | 8 | 1:20.9–1:30.9 | 0:41.9–0:50.4 | Colleyville Heritage | PASS | Deep shot to #2 down the right sideline, ~30 yards |
 | 9 | 1:30.9–1:50.0 | 0:23.7–0:34.4 | Panther Creek | 29 YD TD | **Confirmed by on-screen card: 29-yard TD pass** |
-| 10 | 1:51.6–2:08.5 | 0:06.0–0:18.2 | Emerson | PASS | **Throw from inside his own end zone, goes the distance** |
+| 10 | 1:51.6–2:08.5 | 0:06.0–0:18.2 | Emerson | PASS | **1st & 10 from his own 10 — throw from the end zone, 90-yard TD** |
 | 11 | 2:08.5–2:15.6 | 0:50.4–0:55.9 | Colleyville Heritage | RED ZONE PASS | Contested catch by #2 at the 3 |
 | — | 2:15.6–2:21.6 | kept, at 1:12.6 | — | outro card | Contact + Hudl profile |
 
@@ -118,22 +120,26 @@ angle.
 
 ---
 
-## Play 3 — 0:30.4–0:41.8 · Emerson · end-zone angle
+## Play 3 — 0:30.4–0:41.8 · Emerson · **this is Play 10, shown twice**
 
-**Scoreboard at 0:40.9 — HOME 14, GUEST 0 · 10:38 · 1st & 10 · ball on the 10 · Q2.**
-That's the *post-play* spot, which is the useful part: this play ended at the 10.
+**Correction.** I originally wrote this up as a separate play. It is not. It is
+the same snap as Play 10, which the source reel includes twice — once from this
+wider angle showing the goalposts, once from a tighter one at 1:51.6. Matching
+the pre-snap frames confirms it: identical formation, identical offensive line
+(70, 51, 65, 44, 57), identical defensive alignment, same lighting, same
+stadium, Anna backed against their own "COYOTES" end zone in both.
 
-Snap around **0:31.0–0:31.5** with the ball near midfield. Pocket, then a convoy
-of Anna blockers escorting a ball carrier up the field from **0:33** through
-**0:39**, camera zooming out to keep up. By **0:40–0:41** Anna players are
-celebrating on the near sideline and one is standing in the end zone.
+Cut from the recut for that reason.
 
-**Honest note:** the end-zone camera plus the distance makes it impossible for me
-to say cleanly whether this was caught at 15 yards and run, or a shorter throw
-with a long run after. What is certain is start (midfield) and finish (the 10) —
-call it a ~40-yard gain.
+The duplicate earned its keep on the way out, though. This angle carries a
+**legible scoreboard at 0:40.9 — HOME 14, GUEST 0 · 10:38 · 1st & 10 · ball on
+the 10 · Q2** — and that is the *pre-snap* state, not the post-play spot I first
+read it as. "Ball on the 10" means Anna's **own** 10. So Play 10 is pinned: 1st
+and 10 from his own 10, second quarter, Anna up 14-0, and the play covers 90
+yards for a touchdown.
 
----
+My original entry here claimed the play ran "midfield to the 10." That was wrong
+in both direction and distance.
 
 ## Play 4 — 0:41.8–0:47.7 · Emerson · sideline angle
 
@@ -250,6 +256,10 @@ with blockers — which is the whole job on that concept.
 ---
 
 ## Play 10 — 1:51.6–2:08.5 · Emerson · **throw from his own end zone**
+
+**Scoreboard (from the duplicate angle at 0:40.9) — HOME 14, GUEST 0 · 10:38 ·
+1st & 10 · ball on the 10 · Q2.** Anna's own 10, so this play is a 90-yard
+touchdown.
 
 Best play on the reel if you care about nerve.
 

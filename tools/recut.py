@@ -64,10 +64,18 @@ def make_label(clip, spec, path):
     situation = clip.get("situation") or clip.get("opponent", "")
     top_line = (f"{clip['opponent']}   ·   {clip['situation']}".upper()
                 if clip.get("situation") else situation.upper())
-    headline = clip["headline"]
+    headline = clip.get("headline", "")
 
     plate = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
     draw = ImageDraw.Draw(plate)
+
+    for st in clip.get("stamps", []):
+        draw.text((st["x"], st["y"]), st["text"],
+                  font=ImageFont.truetype(FONTS[st.get("font", "bold")], st["size"]),
+                  fill=tuple(st["color"]))
+    if not clip.get("headline"):
+        plate.save(path)
+        return
 
     if vertical:
         # the 16:9 footage sits as a band in the middle of the tall frame; put
@@ -94,7 +102,10 @@ def make_label(clip, spec, path):
                   font=small, fill=(196, 196, 204, 255))
         draw.text((x0 + pad_x, y0 + pad_y + 30 + gap), headline,
                   font=big, fill=(255, 255, 255, 255))
-        assert y0 + bh < ch - IG_SAFE_BOTTOM, "label runs under Instagram's UI"
+        safe = canvas.get("safe_bottom", IG_SAFE_BOTTOM)
+        assert y0 + bh < ch - safe, (
+            f"label bottom {y0 + bh} runs into the reserved {safe}px at the "
+            f"foot of a {cw}x{ch} frame")
         plate.save(path)
         return
 
@@ -227,12 +238,24 @@ def main():
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--editlist", default="reel/editlist.json")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--out", help="override the edit list's output path")
+    p.add_argument("--canvas", metavar="WxH",
+                   help="override the canvas, e.g. 1080x1350 for a 4:5 feed "
+                        "post. Keeps one edit list driving every aspect ratio.")
     p.add_argument("--description", metavar="PATH",
                    help="also write a YouTube/Hudl description with chapter "
                         "timestamps derived from the edit list")
     args = p.parse_args()
 
     spec = json.load(open(args.editlist))
+    if args.canvas:
+        w, h = (int(v) for v in args.canvas.lower().split("x"))
+        spec.setdefault("canvas", {}).update({"w": w, "h": h})
+        # a 4:5 feed post is not covered by the Reels button stack
+        if h < w * 16 / 9:
+            spec["canvas"].setdefault("safe_bottom", 100)
+    if args.out:
+        spec["output"] = args.out
     src, out = spec["source"], spec["output"]
     clips = spec["clips"]
 
@@ -254,7 +277,7 @@ def main():
         parts = []
         for i, clip in enumerate(clips):
             label = None
-            if clip.get("opponent"):
+            if clip.get("opponent") or clip.get("stamps"):
                 label = os.path.join(work, f"label_{i:02d}.png")
                 make_label(clip, spec, label)
             part = os.path.join(work, f"part_{i:02d}.mp4")
