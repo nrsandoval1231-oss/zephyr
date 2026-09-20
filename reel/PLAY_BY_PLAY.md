@@ -3,9 +3,12 @@
 `Kreye_Zephyr_QB_Anna_2027_CoachReel.mp4` · 2:21.6 · 1920x1080 · 29.97 fps
 QB #17, Anna Coyotes (Anna, TX), class of 2027.
 
-Every timecode below is the reel clock, not game clock. Everything here was read
-off the frames using `tools/reelscope.py`. Where the camera angle or resolution
-doesn't support a call, it says so — nothing below is filled in from assumption.
+**Every timecode in this document refers to the original reel**
+(`..._CoachReel.mp4`, 2:21.6), not the recut — that's deliberate, since this is the
+review of the raw tape and it covers three plays the recut drops. The table below
+carries both clocks. Everything here was read off the frames using
+`tools/reelscope.py`. Where the camera angle or resolution doesn't support a call,
+it says so — nothing below is filled in from assumption.
 
 **Color key.** Anna is purple/black at home, white on the road. Emerson HS is
 light blue/white. Colleyville Heritage is red/black (Panthers). Panther Creek is
@@ -43,21 +46,21 @@ a **full-game link**.
 
 ## The tape at a glance
 
-| # | Reel time | Opponent | Hudl label | What it actually shows |
-|---|-----------|----------|-----------|------------------------|
-| — | 0:00–0:06 | — | title card | Name, position, school, class, #17 |
-| 1 | 0:06–0:13.6 | Emerson | PASS | 3.5-second hold, throw to #16, big gain to ~the 20 |
-| 2 | 0:13.6–0:30.4 | Emerson | PASS | 3rd & 5, pocket caves, escapes up the middle and runs |
-| 3 | 0:30.4–0:41.8 | Emerson | PASS | Long completion; ball spotted at the 10 after |
-| 4 | 0:41.8–0:47.7 | Emerson | PASS | Free rusher, moves left, throws on the run to #16 |
-| 5 | 0:47.7–0:59.7 | Emerson | PASS | 1st & 10, quick game over the middle, contested |
-| 6 | 0:59.7–1:07.9 | Emerson | PASS | Holds, slides, works the left side |
-| 7 | 1:07.9–1:20.9 | Emerson | PASS | 2nd & 10 from the 45, crosser with pressure arriving |
-| 8 | 1:20.9–1:30.9 | Colleyville Heritage | PASS | Deep shot to #2 down the right sideline, ~30 yards |
-| 9 | 1:30.9–1:50.0 | Panther Creek | 29 YD TD | **Confirmed by on-screen card: 29-yard TD pass** |
-| 10 | 1:51.6–2:08.5 | Emerson | PASS | **Throw from inside his own end zone, goes the distance** |
-| 11 | 2:08.5–2:15.6 | Colleyville Heritage | RED ZONE PASS | Contested catch by #2 at the 3 |
-| — | 2:15.6–2:21.6 | — | outro card | Contact + Hudl profile |
+| # | Original | In recut | Opponent | Hudl label | What it actually shows |
+|---|----------|----------|----------|-----------|------------------------|
+| — | 0:00–0:06 | kept, at 0:00 | — | title card | Name, position, school, class, #17 |
+| 1 | 0:06–0:13.6 | 0:34.4–0:41.9 | Emerson | PASS | 3.5-second hold, throw to #16, big gain to ~the 20 |
+| 2 | 0:13.6–0:30.4 | 1:06.6–1:12.6 | Emerson | PASS | 3rd & 5, pocket caves, escapes up the middle and runs |
+| 3 | 0:30.4–0:41.8 | 0:55.9–1:06.6 | Emerson | PASS | Long completion; ball spotted at the 10 after |
+| 4 | 0:41.8–0:47.7 | 0:18.2–0:23.7 | Emerson | PASS | Free rusher, moves left, throws on the run to #16 |
+| 5 | 0:47.7–0:59.7 | **cut** | Emerson | PASS | 1st & 10, quick game over the middle, contested |
+| 6 | 0:59.7–1:07.9 | **cut** | Emerson | PASS | Holds, slides, works the left side |
+| 7 | 1:07.9–1:20.9 | **cut** | Emerson | PASS | 2nd & 10 from the 45, crosser with pressure arriving |
+| 8 | 1:20.9–1:30.9 | 0:41.9–0:50.4 | Colleyville Heritage | PASS | Deep shot to #2 down the right sideline, ~30 yards |
+| 9 | 1:30.9–1:50.0 | 0:23.7–0:34.4 | Panther Creek | 29 YD TD | **Confirmed by on-screen card: 29-yard TD pass** |
+| 10 | 1:51.6–2:08.5 | 0:06.0–0:18.2 | Emerson | PASS | **Throw from inside his own end zone, goes the distance** |
+| 11 | 2:08.5–2:15.6 | 0:50.4–0:55.9 | Colleyville Heritage | RED ZONE PASS | Contested catch by #2 at the 3 |
+| — | 2:15.6–2:21.6 | kept, at 1:12.6 | — | outro card | Contact + Hudl profile |
 
 Three of the clips carry a readable stadium scoreboard, which pins them to real
 game situations (see each play below).
