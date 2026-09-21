@@ -1,0 +1,132 @@
+{
+  "source": "reel/Kreye_Zephyr_QB_Anna_2027_CoachReel.mp4",
+  "output": "reel/Kreye_Zephyr_QB_Anna_2027_CoachReel_v3.mp4",
+  "brand": {
+    "accent": "#653397",
+    "panel": "#0B0B0BE0",
+    "scrim": {
+      "height": 190,
+      "alpha": 105
+    }
+  },
+  "transition": {
+    "style": "bleed",
+    "duration": 0.55
+  },
+  "clips": [
+    {
+      "id": "intro",
+      "source": "reel/titlecard_v3.mp4",
+      "in": 0.0,
+      "out": 5.2,
+      "label": null,
+      "detag": false,
+      "no_scrim": true,
+      "note": "photo title card built from the uploaded Zephyr #17 shot; everything burned into the card itself",
+      "vo": "Zephyr Kreye. Six foot five, two hundred twenty pounds. Quarterback, Anna High School, class of twenty twenty-seven."
+    },
+    {
+      "id": "p10",
+      "in": 116.0,
+      "out": 128.2,
+      "opponent": "EMERSON HS",
+      "headline": "Throws from inside his own end zone — 90-yard TD",
+      "note": "same snap the source reel also showed from a wider angle at 0:30; that angle's scoreboard is what pins the situation",
+      "vo": "Anna backed up on their own goal line. Kreye takes it in his own end zone, pressure in his face, and lets it go. Nobody catches him. Ninety yards. Touchdown, Coyotes.",
+      "down": "1st & 10"
+    },
+    {
+      "id": "c67",
+      "source": "footage/hudl/67-yard-touchdown-pass-vs-colleyville-heritage.mp4",
+      "in": 2.0,
+      "out": 14.6,
+      "detag": false,
+      "opponent": null,
+      "headline": "67-yard touchdown pass vs Colleyville Heritage",
+      "note": "720p pull from Hudl, upscaled; keeps Hudl's own '#17 ZEPHYR KREYE' card rather than stacking a second label"
+    },
+    {
+      "id": "ezA",
+      "source": "footage/hudl/emerson-high-school.mp4",
+      "in": 11.8,
+      "out": 24.3,
+      "detag": false,
+      "opponent": "EMERSON HS",
+      "headline": "Behind-the-QB cam: escapes, deep ball in stride — about a 55-yard gain",
+      "note": "end-zone angle behind the offense; snap ~0:13.5, scramble right, deep shot caught on the run, run down to the opponent ~30",
+      "vo": "Backed up deep. Kreye rolls out, sets his feet, and launches. Caught in stride at midfield and gone — fifty-five yards."
+    },
+    {
+      "id": "p04",
+      "in": 42.0,
+      "out": 47.5,
+      "opponent": "EMERSON HS",
+      "headline": "Off-platform throw on the move — completion at the 50",
+      "note": "moves to his non-throwing side, keeps his eyes up, releases at 0:44.1",
+      "vo": "Edge comes free. Kreye slides left, throws across his body, on the money at the fifty."
+    },
+    {
+      "id": "p09",
+      "in": 98.8,
+      "out": 109.5,
+      "opponent": "PANTHER CREEK",
+      "headline": "29-yard touchdown pass",
+      "note": "confirmed by the Hudl card in-clip and the stadium ribbon board",
+      "vo": "First and ten at the twenty-nine. Kreye works right and finds number one in the flat. He's got blockers. Pylon. Touchdown.",
+      "down": "1st & 10"
+    },
+    {
+      "id": "b40",
+      "source": "footage/hudl/40-yard-touchdown-pass-vs-brock.mp4",
+      "in": 1.5,
+      "out": 12.5,
+      "detag": false,
+      "opponent": null,
+      "headline": "40-yard touchdown pass vs Brock",
+      "note": "720p pull from Hudl, upscaled; keeps Hudl's own '#17 ZEPHYR KREYE' card rather than stacking a second label"
+    },
+    {
+      "id": "ezB",
+      "source": "footage/hudl/emerson-high-school.mp4",
+      "in": 25.5,
+      "out": 34.8,
+      "detag": false,
+      "opponent": "EMERSON HS",
+      "headline": "Behind-the-QB cam: clean pocket, on-time ball over the middle",
+      "note": "same end-zone camera; snap ~0:26.7, completion ~0:29.7 for roughly twenty yards",
+      "vo": "Clean pocket. Ball out on time, over the middle. Twenty yards."
+    },
+    {
+      "id": "p08",
+      "in": 81.0,
+      "out": 89.5,
+      "opponent": "COLLEYVILLE HERITAGE",
+      "headline": "Deep ball down the boundary — about 30 yards to #2",
+      "note": "tackled inside the 20",
+      "vo": "Kreye takes his shot down the right boundary. Number two runs under it. Thirty yards, down inside the twenty."
+    },
+    {
+      "id": "outro",
+      "in": 135.6,
+      "out": 141.6,
+      "label": null,
+      "note": "original contact card, unchanged | no de-tag crop: it would shift the card",
+      "vo": "Zephyr Kreye. Number seventeen. Anna, Texas. Full film and contact below.",
+      "detag": false
+    }
+  ],
+  "voice": {
+    "provider": "elevenlabs",
+    "model_id": "eleven_multilingual_v2",
+    "voice_id": "REPLACE_WITH_YOUR_ELEVENLABS_VOICE_ID",
+    "voice_settings": {
+      "stability": 0.4,
+      "similarity_boost": 0.75,
+      "style": 0.45,
+      "use_speaker_boost": true
+    },
+    "output_format": "mp3_44100_128",
+    "duck_db": -11,
+    "tail_clean": 1.2
+  }
+}
